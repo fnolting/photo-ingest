@@ -1,12 +1,13 @@
 #!/bin/sh
 # photo-ingest.sh
-# Kopiert ARW-Dateien von CF Express A Karte direkt nach /volume2/Original RAWs.
-# Verwendet DateTimeOriginal aus EXIF (nicht mtime).
-# Unterstützt mehrere Aufnahmetage auf einer Karte.
+# Copies ARW files from CF Express A card directly to your $BASE directory.
+# Supports multiple shooting days on one card and in one ingest.
+# Uses DateTimeOriginal from EXIF ​​(not mtime).
 
+# Assuming your NAS mounts external drives on /mnt/@usb/sd* - adapt to your needs below.
 SOURCE=$(find /mnt/@usb/sd* -type d -name DCIM 2>/dev/null | head -n 1)
-BASE="[YOUR_NAS_DIRECTORY_CONTAINING_RAW_FILES_GOES_HERE]"
-STATUS_BASE="[PATH_TO_DOCKER_CONTAINERS]/photo-ingest/data/ingest-status"
+BASE="[YOUR_RAW_FILES_DIRECTORY_GOES_HERE]"
+STATUS_BASE="[PATH_TO_YOUR_DOCKER_CONTAINERS]/photo-ingest/data/ingest-status"
 LOG="/var/log/photo-ingest.log"
 LOCK="/tmp/photo-ingest.lock"
 SEALED_KEY="sealed=true"
