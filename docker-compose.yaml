@@ -1,0 +1,23 @@
+services:
+  photo-ingest:
+    build: ./app
+    container_name: photo-ingest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - "/volume2/Original RAWs:/volume2/Original RAWs:ro"              # read only, RAW files stay untouched
+      - "/volume3/docker/photo-ingest/data:/data"                       # holds metadata regarding status: marked-imported.json + ingest-status/
+      - "/volume3/docker/photo-ingest/app/server.js:/app/server.js"     # mounted as volume for Live-Edit
+      - "/volume3/docker/photo-ingest/app/i18n.js:/app/i18n.js"         # mounted as volume for Live-Edit (Translations)
+      - "/volume3/docker/photo-ingest/README.md:/app/README.md:ro"      # READ.ME before use
+      - "/var/log/photo-ingest.log:/data/photo-ingest.log:ro"           # Ingest-Log (used for log scroller)
+    command: ["node", "--watch", "server.js"]                           # watch server.js for changes
+    environment:
+      - "IMPORT_BASE=/volume2/Original RAWs"                            # modify to where your RAWs reside
+      - "STATUS_BASE=/data/ingest-status"                               # metadata for imported files / created folders
+      - "MAC_VOLUME=/Volumes/Original RAWs"                             # Name of the volume on the client
+      - PORT=3000                                                       # Port the web server is running on
+      - STATE_FILE=/data/marked-imported.json                           # timestamps when folders were marked as imported
+      - LOG_FILE=/data/photo-ingest.log                                 # log file of the backend script
+      - UI_LOCALE=de                                                    # Locale of the Web-UI (see app/i18n.js)
