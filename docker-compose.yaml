@@ -6,18 +6,18 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - "[YOUR_NAS_DIRECTORY_CONTAINING_RAW_FILES_GOES_HERE]:[YOUR_NAS_DIRECTORY_CONTAINING_RAW_FILES_GOES_HERE]:ro"              # read only, RAW files stay untouched
-      - "[PATH_TO_DOCKER_CONTAINERS]/photo-ingest/data:/data"                                                                     # holds metadata regarding status: marked-imported.json + ingest-status/
-      - "[PATH_TO_DOCKER_CONTAINERS]/photo-ingest/app/server.js:/app/server.js"                                                   # mounted as volume for Live-Edit
-      - "[PATH_TO_DOCKER_CONTAINERS]/photo-ingest/app/i18n.js:/app/i18n.js"                                                       # mounted as volume for Live-Edit (Translations)
-      - "[PATH_TO_DOCKER_CONTAINERS]/photo-ingest/README.md:/app/README.md:ro"                                                    # READ.ME before use
-      - "/var/log/photo-ingest.log:/data/photo-ingest.log:ro"                                                                     # Ingest-Log (used for log scroller)
-    command: ["node", "--watch", "server.js"]                                                                                     # watch server.js for changes
+      - "[YOUR_RAW_FILES_DIRECTORY_GOES_HERE]:[YOUR_RAW_FILES_DIRECTORY_GOES_HERE]:ro"              # read only, RAW files stay untouched
+      - "[PATH_TO_YOUR_DOCKER_CONTAINERS]/photo-ingest/data:/data"                                  # holds metadata regarding status: marked-imported.json + ingest-status/
+      - "[PATH_TO_YOUR_DOCKER_CONTAINERS]/photo-ingest/app/server.js:/app/server.js"                # mounted as volume for Live-Edit
+      - "[PATH_TO_YOUR_DOCKER_CONTAINERS]/photo-ingest/app/i18n.js:/app/i18n.js"                    # mounted as volume for Live-Edit (Translations)
+      - "[PATH_TO_YOUR_DOCKER_CONTAINERS]/photo-ingest/README.md:/app/README.md:ro"                 # READ.ME before use
+      - "/var/log/photo-ingest.log:/data/photo-ingest.log:ro"                                       # Ingest-Log (used for log scroller)
+    command: ["node", "--watch", "server.js"]                                                       # watch server.js for changes
     environment:
-      - "IMPORT_BASE=[YOUR_NAS_DIRECTORY_CONTAINING_RAW_FILES_GOES_HERE]"                                                         # modify to where your RAWs reside
-      - "MAC_VOLUME=[YOUR_MAC_MOUNT_NAME_GOES_HERE]"                                                                              # Name of the volume on the client
-      - "STATUS_BASE=/data/ingest-status"                                                                                         # metadata for imported files / created folders
-      - PORT=3000                                                                                                                 # Port the web server is running on
-      - STATE_FILE=/data/marked-imported.json                                                                                     # timestamps when folders were marked as imported
-      - LOG_FILE=/data/photo-ingest.log                                                                                           # log file of the backend script
-      - UI_LOCALE=en                                                                                                              # Locale of the Web-UI (see app/i18n.js)
+      - "IMPORT_BASE=[YOUR_RAW_FILES_DIRECTORY_GOES_HERE]"                                          # modify to where your RAWs reside
+      - "MAC_VOLUME=[YOUR_MAC_MOUNT_NAME_GOES_HERE]"                                                # Name of the volume on the client
+      - "STATUS_BASE=/data/ingest-status"                                                           # metadata for imported files / created folders
+      - PORT=3000                                                                                   # Port the web server is running on
+      - STATE_FILE=/data/marked-imported.json                                                       # timestamps when folders were marked as imported
+      - LOG_FILE=/data/photo-ingest.log                                                             # log file of the backend script
+      - UI_LOCALE=en                                                                                # Locale of the Web-UI (see app/i18n.js)
