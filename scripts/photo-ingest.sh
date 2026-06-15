@@ -5,8 +5,8 @@
 # Unterstützt mehrere Aufnahmetage auf einer Karte.
 
 SOURCE=$(find /mnt/@usb/sd* -type d -name DCIM 2>/dev/null | head -n 1)
-BASE="/volume2/Original RAWs"
-STATUS_BASE="/volume3/docker/photo-ingest/data/ingest-status"
+BASE="[YOUR_NAS_DIRECTORY_CONTAINING_RAW_FILES_GOES_HERE]"
+STATUS_BASE="[PATH_TO_DOCKER_CONTAINERS]/photo-ingest/data/ingest-status"
 LOG="/var/log/photo-ingest.log"
 LOCK="/tmp/photo-ingest.lock"
 SEALED_KEY="sealed=true"
