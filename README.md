@@ -2,6 +2,39 @@
 
 Automate transferring RAW images from your camera's memory card to your NAS, then import them straight into Lightroom Classic with a single click — no manual copying, no clunky watched-folder workarounds.
 
+## TL;DR
+
+```sh
+# 1. NAS: install exiftool, deploy script, set your paths
+apt-get install -y libimage-exiftool-perl
+cp scripts/photo-ingest.sh /usr/local/bin/photo-ingest.sh
+chmod +x /usr/local/bin/photo-ingest.sh
+# → edit BASE and STATUS_BASE at the top of the script
+
+# 2. NAS: add udev rule to trigger on card insert
+echo 'ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_USAGE}=="filesystem", RUN+="/usr/local/bin/photo-ingest.sh"' \
+    > /etc/udev/rules.d/99-photo-ingest.rules
+udevadm control --reload-rules
+
+# 3. NAS: start the Docker container
+# → fill in path/env placeholders in docker-compose.yaml first
+docker compose up -d --build
+# Web UI now at http://<nas-host>:3000
+
+# 4. Mac: create config + compile the URL handler
+cat > ~/.photoimport-config << 'CFG'
+NAS_HOST=your-nas.local
+SHARE_NAME=Your RAW Share Name
+CFG
+osacompile -o /Applications/PhotoimportHandler.app mac-handler/PhotoimportHandler.applescript
+# → add CFBundleURLTypes block to the app's Info.plist (see Setup below)
+open /Applications/PhotoimportHandler.app   # registers the photoimport:// scheme
+```
+
+That's it. Insert a card → files are copied and card is ejected → open the web UI → click **"Open in Lightroom"** → click **Add** in Lightroom's import dialog.
+
+---
+
 ## Why this exists
 
 Lightroom Classic doesn't support a network share as an auto-import watched folder, and manually digging through camera card folders to find "what's new since last time" gets old fast. `photo-ingest` splits the workflow into two small, independent pieces:
