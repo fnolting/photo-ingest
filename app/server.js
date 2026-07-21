@@ -1,41 +1,42 @@
 'use strict';
-// photo-ingest — Web-UI für Foto-Import auf dem NAS
+// photo-ingest — Web UI for Importing Photos to the NAS
 //
-// Zeigt alle Tagesordner in IMPORT_BASE als Cards an.
-// Für jeden Tag / Card stehen folgende Aktionen zur Verfügung:
+// Displays all daily folders in IMPORT_BASE as cards.
+// The following actions are available for each day/card:
 //
-// - "In Lightroom öffnen":
-//   Öffnet über ein Custom URL-Schema (photoimport://) auf dem Mac den
-//   Lightroom-Importdialog mit dem entsprechenden Ordner als Quelle.
-//   Im Lightroom-Dialog anschließend "Hinzufügen" auswählen (kein Copy/Move,
-//   die Dateien verbleiben am ursprünglichen Speicherort auf dem NAS).
-//
-// - "Als importiert markieren":
-//   Setzt einen rein UI-seitigen Status (gespeichert in einer JSON-Datei),
-//   um bereits verarbeitete Tage visuell zu kennzeichnen.
-//   Dieser Status hat keinen Einfluss auf Lightroom selbst.
-//
-// - "🔓 Offen" / "🔒 Gesperrt":
-//   Steuert den "sealed"-Status eines Tages.
-//   Der Status wird serverseitig in einer separaten Status-Datei gespeichert
-//   (nicht im RAW-Verzeichnis, um Read-Only-Mounts zu unterstützen).
-//
-//   🔓 Offen:
-//   → Der Ordner kann durch das Ingest-Script weiterhin verändert werden
-//     (z.B. Ergänzen neuer Dateien nach bereits erfolgtem Import).
-//
-//   🔒 Gesperrt:
-//   → Der Ordner gilt als abgeschlossen (z.B. nach Lightroom-Culling)
-//     und wird von weiteren automatischen Import-/Sync-Prozessen ignoriert.
-//
-// Die Trennung von RAW-Daten (read-only) und Statusinformationen (read-write)
-// schützt die Originaldaten vor unbeabsichtigten Änderungen und ermöglicht
-// gleichzeitig eine flexible Steuerung des Import-Workflows.
+// - "Open in Lightroom":
+// Opens the Lightroom import dialog on a Mac using a custom URL
+// scheme (photoimport://) with the corresponding folder as the source.
 
-// Hinweis:
-// Das Web-UI dient ausschließlich zur Steuerung und Visualisierung des Workflows,
-// sowie der automatisierten Weitergabe an und Import in Adobe Lightroom Classic.
-// Der eigentliche Datenimport erfolgt durch ein separates Ingest-Script.
+// In the Lightroom dialog, select "Add" (no copy/move,
+// the files remain in their original location on the NAS).
+//
+// - "Mark as Imported":
+// Sets a purely UI-based status (saved in a JSON file)
+// to visually indicate days that have already been processed.
+// This status has no effect on Lightroom itself.
+//
+// - "🔓 Open" / "🔒 Locked":
+// Controls the "sealed" status for a given day.
+// The status is stored server-side in a separate status file
+// (not in the RAW directory to support read-only mounts).
+//
+//🔓 Open:
+// → The folder can still be modified by the ingest script
+// (e.g., adding new files after an import has already been completed).
+//
+//🔒 Locked:
+// → The folder is considered sealed (e.g., after Lightroom culling)
+// and is ignored by further automatic import/sync processes.
+//
+// The separation of RAW data (read-only) and status information (read-write)
+// protects the original data from unintentional changes and simultaneously enables
+// flexible control of the import workflow.
+//
+// Note:
+// The web UI is used exclusively for controlling and visualizing the workflow,
+// as well as for automated transfer to and import into Adobe Lightroom Classic.
+// The actual data import is performed by a separate ingest script.
 
 
 const http = require('http');
@@ -52,7 +53,7 @@ const PORT        = parseInt(process.env.PORT);
 const UI_LOCALE   = process.env.UI_LOCALE
 const i18n        = getLocale(UI_LOCALE);
 
-// ── Status-Datei Helpers (.ingest_status, vom photo-ingest.sh Script) ──────
+// ── Status-File Helpers (.ingest_status, from photo-ingest.sh Script) ──────
 
 function readIngestStatus(folder) {
     const p = getStatusFile(folder);
@@ -67,7 +68,7 @@ function readIngestStatus(folder) {
     return r;
 }
 
-// ── "Importiert" Markierungen (rein für UI, manuell vom Nutzer gesetzt) ────
+// ── "Imported" markings (UI only, set manually by user) ────
 
 function readMarked() {
     if (!fs.existsSync(STATE_FILE)) return {};
@@ -80,7 +81,7 @@ function writeMarked(state) {
     fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
 }
 
-// ── Ordnerliste ──────────────────────────────────────────────────────────
+// ── Folder list ──────────────────────────────────────────────────────────
 
 function getFolders() {
     if (!fs.existsSync(IMPORT_BASE)) return [];
@@ -101,7 +102,7 @@ function getFolders() {
                 ingested_at: s.ingested_at || null,
                 imported:    !!marked[folder],
                 sealed:      s.sealed,
-                // URL-Scheme für den clientseitigen PhotoImportHandler
+                // URL-Scheme for the client-side PhotoImportHandler
                 importUrl: `photoimport://${encodeURIComponent(folder)}`
             };
         });
@@ -192,7 +193,7 @@ if (url.pathname === '/api/seal' && req.method === 'POST') {
            
             const statusFile = getStatusFile(folder);
 
-            // sicherstellen dass Verzeichnis existiert
+            // make sure the folder exists
             fs.mkdirSync(STATUS_BASE, { recursive: true });
 
             let lines = [];
@@ -550,8 +551,8 @@ let lastLogLineCount = 0;
 let lastLogChangeAt = 0;
 let lastWasActive = false;
 let logTimer = null;
-const LOG_FAST_INTERVAL = 500;   // während Ingest läuft
-const LOG_SLOW_INTERVAL = 5000;  // im Ruhezustand
+const LOG_FAST_INTERVAL = 500;   // while Ingest is running
+const LOG_SLOW_INTERVAL = 5000;  // in standby
 
 function classifyLine(line) {
   if (line.includes('START ingest')) return 'log-start';
@@ -599,7 +600,7 @@ async function loadLog() {
     const active = recentChange && (looksRunning || tailJoined.includes('START ingest'));
     dot.classList.toggle('active', active && recentChange);
 
-    // Während eines laufenden Ingests sehr häufig pollen, sonst gemütlich
+    // Fast polling during a running ingest, relaxed polling in standby
     nextDelay = active ? LOG_FAST_INTERVAL : LOG_SLOW_INTERVAL;
 
     const wasAtBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 20;
@@ -615,9 +616,8 @@ async function loadLog() {
 
     if (wasAtBottom) body.scrollTop = body.scrollHeight;
 
-    // Wenn der Ingest gerade fertig wurde (war aktiv, ist jetzt nicht mehr),
-    // noch einmal kurz schnell pollen, um das finale "END ingest" + neue
-    // Cards möglichst sofort einzusammeln
+    // If the ingest has just finished quickly poll one more time to 
+    // complete the final "END ingest" and collect new cards asap.
     if (!active && lastWasActive) {
       load();
       nextDelay = LOG_FAST_INTERVAL;
@@ -625,8 +625,8 @@ async function loadLog() {
     }
     lastWasActive = active;
 
-    // Während aktiv: Card-Liste ebenfalls häufiger aktualisieren,
-    // damit neue/aktualisierte Tage zeitnah auftauchen
+    // While active: Refresh card list more frequently
+    // to see new/updated days asap
     if (active) load();
   } catch (e) {
     setOffline(true);
