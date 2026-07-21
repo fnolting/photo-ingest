@@ -21,3 +21,4 @@ services:
       - STATE_FILE=/data/marked-imported.json                                                       # timestamps when folders were marked as imported
       - LOG_FILE=/data/photo-ingest.log                                                             # log file of the backend script
       - UI_LOCALE=en                                                                                # Locale of the Web-UI (see app/i18n.js)
+    network_mode: bridge
