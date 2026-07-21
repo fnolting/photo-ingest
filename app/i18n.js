@@ -1,18 +1,16 @@
 'use strict';
-// i18n.js — Texte für die Photo-Ingest Web-UI
+// i18n.js — Texts for the Photo-Ingest Web UI
 //
-// Alle in der UI angezeigten Texte sind hier zentral als Variablen
-// hinterlegt, um Mehrsprachigkeit zu ermöglichen.
+// All text displayed in the UI is stored centrally here as variables
+// to enable multilingual support.
 //
-// Sprache wählen über die Umgebungsvariable UI_LOCALE (z.B. "de" oder "en").
-// Wird als UI_LOCALE ein ungültiger oder gar kein Wert gesetzt, wird 
-// DEFAULT_LOCALE verwendet.
+// Select the language using the environment variable UI_LOCALE (e.g., "de" or "en").
+// If UI_LOCALE is set to an invalid value or no value at all, DEFAULT_LOCALE is used.
 //
-// Struktur:
-//   LOCALES.<locale>.server  → serverseitig gerenderte Texte (HTML-Gerüst)
-//   LOCALES.<locale>.client  → clientseitige Texte (werden als window.I18N
-//                               ins HTML eingebettet und von der UI-Logik
-//                               im <script>-Teil verwendet)
+// Structure:
+// LOCALES.<locale>.server → server-side rendered text (HTML framework)
+// LOCALES.<locale>.client → client-side text (embedded as window.I18N
+// in the HTML and used by the UI logic in the <script> section)
 //
 
 const LOCALES = {
@@ -53,18 +51,18 @@ const LOCALES = {
             readmeNotFound: 'README not found'
         },
         client: {
-            // render(): Leerer Zustand (kein Ordner für aktuellen Filter)
+            // render(): Empty state (no folder in current filter)
             emptyStateEmoji: '📸 🤷🏼‍♂️',
             emptyStateText: 'Keine Einträge vorhanden, starte einen neuen Ingest durch Stecken der Speicherkarte im NAS - oder geh raus zum Fotografieren 📸 😉',
 
-            // Age-Badge auf den Cards
-            ageJustNow: 'Gerade',
-            ageHoursSuffix: 'h',   // z.B. "5h"
-            ageDaysSuffix: 'd',    // z.B. "3d"
+            // Age-Badge on the Cards
+            ageJustNow: 'Gerade',  // "now"
+            ageHoursSuffix: 'h',   // hours
+            ageDaysSuffix: 'd',    // days
 
-            // Card: Kamera/Status-Badges
+            // Card: Camera/Status-Badges
             badgeImported: '✓ importiert',
-            badgeRawSuffix: ' RAW', // z.B. "215 RAW"
+            badgeRawSuffix: ' RAW',
 
             // Card: Buttons
             btnOpenInLightroom: 'In Lightroom öffnen',
@@ -84,7 +82,7 @@ const LOCALES = {
             logUpdatedPrefix: 'aktualisiert ',
             logMetaPlaceholder: '–',
 
-            // Datums-/Zeit-Locale für toLocaleString / toLocaleTimeString
+            // Date/Time-Locale for toLocaleString / toLocaleTimeString
             dateLocale: 'de'
         }
     },
