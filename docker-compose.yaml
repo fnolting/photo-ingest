@@ -3,9 +3,9 @@ services:
     build: ./app
     container_name: photo-ingest
     restart: unless-stopped
+    network_mode: bridge
     ports:
       - "3000:3000"
-    network_mode: bridge
     volumes:
       - "[YOUR_RAW_FILES_DIRECTORY_GOES_HERE]:[YOUR_RAW_FILES_DIRECTORY_GOES_HERE]:ro"              # read only, RAW files stay untouched
       - "[PATH_TO_YOUR_DOCKER_CONTAINERS]/photo-ingest/data:/data"                                  # holds metadata regarding status: marked-imported.json + ingest-status/
